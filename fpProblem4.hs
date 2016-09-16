@@ -2,16 +2,16 @@ lastDigits :: Int -> Int -> [Int]
 lastDigits n d
 	| digits s < digits d = putInList s (digits s)
 	| otherwise = putInList s d
-	where s = sumNum n n 0
+	where s = sumNum n n
 
-sumNum :: Int -> Int -> Int -> Int
-sumNum num pow res
-	| pow < 0  = res
-	| otherwise = sumNum num (pow-1) (res + num^pow)
+sumNum :: Int -> Int -> Int
+sumNum num pow
+	| pow ==  0 = 1
+	| otherwise = num^pow + sumNum num (pow-1)
 
 putInList :: Int -> Int -> [Int]
 putInList s d
-	| d == 1 = [d]
+	| d == 1 = [mod s 10]
 	| mod s 10 == s = [s]
 	| otherwise = putInList (div s 10) (d-1) ++ [(mod s 10)]
 
