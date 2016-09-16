@@ -9,7 +9,6 @@ calc s i j
 	| getCharacter s >= 0 && getCharacter (tail s) >= 0 = calc (snd (getNumber s 0)) i (fst (getNumber s 0)) 
 	| otherwise = calc (tail s) i (getCharacter s)
 
-	
 getNumber :: String -> Int -> (Int, String)
 getNumber s i
 	| not(s == "") && getCharacter s >= 0 = getNumber (tail s) (i*10 + getCharacter s)

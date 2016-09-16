@@ -1,20 +1,18 @@
---lastDigits :: Int -> Int -> [Int]
---lastDigits n d
---	| digits s < digits d = putInList s
---	| otherwise = putInList (getCorrectDigitsOfSum s)
---	where s = sumNum n n 0
+lastDigits :: Int -> Int -> [Int]
+lastDigits n d
+	| digits s < digits d = putInList s
+	| otherwise = putInList (getCorrectDigitsOfSum d s)
+	where s = sumNum n n 0
 
 sumNum :: Int -> Int -> Int -> Int
 sumNum num pow res
 	| pow < 0  = res
 	| otherwise = sumNum num (pow-1) (res + num^pow)
 
---putInList :: Int -> [Int]
---putInList s
---	| mod s 10 == s = [s]
---	| removeFirstDigit s == div s 100 = [getFirstDigit s] ++ [0] ++ putInList (removeFirstDigit s)
---	| otherwise = [getFirstDigit s] ++ putInList (removeFirstDigit s)
-
+putInList :: Int -> [Int]
+putInList s
+	| mod s 10 == s = [s]
+	| otherwise = putInList (div s 10) ++ [(mod s 10)]
 
 getCorrectDigitsOfSum :: Int -> Int -> Int
 getCorrectDigitsOfSum d num
@@ -27,7 +25,7 @@ digits n
 	| otherwise = 1 + digits (div n 10)
 
 removeFirstDigit :: Int -> Int
-removeFirstDigit num = num - ((getFirstDigit num ) * (10^((digits num) -1)))
+removeFirstDigit num = num - ((getFirstDigit num ) * (10^((digits num)-1)))
 
 getFirstDigit :: Int -> Int
 getFirstDigit n
