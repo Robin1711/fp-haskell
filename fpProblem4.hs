@@ -11,7 +11,7 @@ sumNum num pow res
 
 putInList :: Int -> Int -> [Int]
 putInList s d
-	| d == 0 = []
+	| d == 1 = [d]
 	| mod s 10 == s = [s]
 	| otherwise = putInList (div s 10) (d-1) ++ [(mod s 10)]
 
