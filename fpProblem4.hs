@@ -1,7 +1,7 @@
 lastDigits :: Integer -> Integer -> [Integer]
 lastDigits n d
-	| digits s < digits d = putInList s (digits s)
-	| otherwise = putInList s d
+	| (n>0) && (digits s <= digits d) = putInList s (digits s)
+	| (n>0) && (digits s > digits d) = putInList s d
 	where s = sumNum2 n n 0 d
 
 sumNum :: Integer -> Integer -> Integer

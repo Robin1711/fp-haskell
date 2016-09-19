@@ -1,27 +1,19 @@
---polDivision:: [Double] -> [Double] -> ([Double],[Double])
---polDivision dividend divisor
-	-- |newFunction dividend divisor [] []
-	
-	
---newFunction :: [Double] -> [Double] -> [Double] -> [Double] -> ([Double],[Double])
---newFunction dividend divisor quotient remainder
-	-- |  = computeQuotient (tail dividend) (tail divisor) (div (head dividend) (head divisor))
+polDivision:: [Double] -> [Double] -> ([Double],[Double])
+polDivision dividends divisors
+	|length dividends >= length divisors	= computeQuotient dividends divisors []
 	
 	
 computeQuotient :: [Double] -> [Double] -> [Double] -> ([Double],[Double])
-computeQuotient dividend divisor quotient
-	| sameLength dividend divisor	= (quotient ++ [divisionNumber], division (tail dividend) (tail divisor) [] divisionNumber)
-	| otherwise						= (fst(computeQuotient (division (tail dividend) (tail divisor) [] divisionNumber) divisor (quotient ++ [divisionNumber])), snd(computeQuotient (division (tail dividend) (tail divisor) [] divisionNumber) divisor (quotient ++ [divisionNumber])))
-	where divisionNumber = (head dividend)/(head divisor)
+computeQuotient dividends divisors quotients
+	| length dividends == length divisors	= (quotients ++ (snd (division (tail dividends) (tail divisors) [] divisionNumber [])), fst (division (tail dividends) (tail divisors) [] divisionNumber []))
+	| otherwise								= computeQuotient (fst (division (tail dividends) (tail divisors) [] divisionNumber [])) divisors (quotients ++ snd (division (tail dividends) (tail divisors) [] divisionNumber []))
+	where divisionNumber = (head dividends)/(head divisors)
 
-division :: [Double] -> [Double] -> [Double] -> Double -> [Double]
-division dividend divisor return divisionNumber
-	| (tail divisor) == [] 	= return ++ [(head dividend) - divisionNumber * (head divisor)] ++ (tail dividend)
-	| otherwise				= division (tail dividend) (tail divisor) (return ++ [(head dividend) - divisionNumber * (head divisor)]) divisionNumber
+division :: [Double] -> [Double] -> [Double] -> Double -> [Double] ->([Double], [Double])
+division dividends divisors remainders divisionNumber quotients
+	| divisors == []				= ([], quotients ++ [divisionNumber])
+	| remainders == [] && stuff==0 	= division (tail dividends) (tail divisors) (remainders) divisionNumber (quotients ++ [divisionNumber])
+	| (tail divisors) == [] 		= (remainders ++ [stuff] ++ (tail dividends), quotients ++ [divisionNumber])
+	| otherwise						= (division (tail dividends) (tail divisors) (remainders ++ [stuff]) divisionNumber quotients)
+	where stuff = (head dividends) - divisionNumber * (head divisors)
 
-
-sameLength:: [Double] -> [Double] -> Bool
-sameLength dividend divisor
-	| divisor == [] && dividend == []	= True
-	| divisor == [] && dividend /= []	= False
-	| otherwise 						= sameLength (tail dividend) (tail divisor)
