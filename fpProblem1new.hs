@@ -7,32 +7,25 @@ findHappyNumbers :: Int -> Int -> [Int] -> [Int]
 findHappyNumbers a b ys
 	| a > b = ys
 	| elem a ys = findHappyNumbers (a+1) b ys
-	| not (null happys) && head happys == a = findHappyNumbers (a+1) b (ys ++ happys)
+	| not (null happys) && head happys == a = findHappyNumbers (a+1) b (ys++happys)
 	| otherwise = findHappyNumbers (a+1) b ys
 	where happys = isHappy b [] ys a
 
 isHappy :: Int -> [Int] -> [Int] -> Int -> [Int]
 isHappy ub xs ys n
 	| elem n ys = xs
-	| rs == 1 = addElement 1 xs
-	| n == 89 || elem n xs  = []
-	| n > ub = isHappy ub xs ys rs
-	| otherwise = isHappy ub (addElement n xs) ys rs
-	where rs = resultDigits n
+	| rsd == 1 = xs++1
+	| n == 89 = []
+	--| elem n xs = []
+	| n > ub = isHappy ub xs ys rsd
+	| otherwise = isHappy ub (xs++n) ys rsd
+	where rsd = resultDigits
 
-
---findHappyNumbers :: Int -> Int -> [Int] -> [Int]
---findHappyNumbers
-
---isHappy :: Int -> [Int] -> [Int] -> Int -> [Int]
---isHappy
-
-
-
-addElement :: Int -> [Int] -> [Int]
-addElement n l
-	| elem n l = l
-	| otherwise = l ++ [n]
+addElements :: [Int] -> [Int] -> [Int]
+addElements [] _ = []
+addElements (x:xs) l
+	| elem x l = addEllements xs l
+	| otherwise = [x] ++ addEllements xs l
 
 resultDigits :: Int -> Int
 resultDigits n

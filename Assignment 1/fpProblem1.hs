@@ -1,7 +1,7 @@
 countHappyNumbers :: Int -> Int -> Int
 countHappyNumbers a b
 	| a > b = 0
-	| otherwise = findHappyNumbers a b [1]
+	| otherwise = findHappyNumbers a b []
 
 findHappyNumbers :: Int -> Int -> [Int] -> Int
 findHappyNumbers a b ys
