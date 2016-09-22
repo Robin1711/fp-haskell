@@ -4,12 +4,14 @@ polDivision dividends divisors
 	
 computeRemainder :: [Double] -> [Double] -> [Double]
 computeRemainder dividends divisors
+	| length dividends < length divisors 	= dividends
 	| length dividends == length divisors 	= oneDivision dividends divisors divisionNumber
 	| otherwise								= computeRemainder (oneDivision dividends divisors divisionNumber) divisors
 	where divisionNumber = (head dividends) / (head divisors)
 	
 computeQuotient :: [Double] -> [Double] -> [Double]
 computeQuotient dividends divisors
+	| length dividends < length divisors 	= []
 	| length dividends == length divisors 	= [divisionNumber]
 	| otherwise								= [divisionNumber] ++ computeQuotient (oneDivision dividends divisors divisionNumber) divisors
 	where divisionNumber = (head dividends) / (head divisors)
