@@ -49,3 +49,6 @@ charToOperator ch
 	|ch == '-'	= -2
 	|ch == '*'	= -3
 	|ch == '/'	= -4
+
+
+main =  print . rpnEval =<< getLine
