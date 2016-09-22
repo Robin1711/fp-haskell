@@ -1,22 +1,26 @@
---takuzuStrings :: Int -> [String]
---takuzuStrings n xs
---	| for all i<-[0..n]
---		xs ++ produceStrings i
+takuzuStrings :: Int -> [String]
+takuzuStrings n = checkAll (reverse (produceStrings n ((2^n)-1)))
 
+produceStrings :: Int -> Int -> [String]
+produceStrings n i
+	| i == 0 = [strings i n]
+	| otherwise = [strings i n] ++ produceStrings n (i-1)
 
---produceStrings :: Int -> [String] -> [String]
---produceStrings n xs
---	| n == 0 = 
---	| for all i <- [0,1] 
---		produceStrings n-1 xs++[i]
+strings :: Int -> Int -> String
+strings i n
+	| n==0 = ""
+	| i - (2^(n-1)) >= 0 = "1" ++ strings (i-2^(n-1)) (n-1)
+	| otherwise = "0" ++ strings i (n-1)
 
-produceStrings :: Int -> [String] -> [String]
-produceStrings n xs
-	| showIntAtBase 2 intToDigit n
+checkAll :: [String] -> [String]
+checkAll [] = []
+checkAll (x : xs)
+	| checkString x ' ' 0 = [x] ++ checkAll xs
+	| otherwise = checkAll xs
 
-check :: String -> Char -> Int -> Bool
-check s c n
-	| s == "" = True
-	| n == 3 = False
-	| c == head s = check (tail s) c (n+1)
-	| otherwise = check (tail s) c 0
+checkString :: String -> Char -> Int -> Bool
+checkString s l amount
+	| (head s) == l && amount == 2 = False
+	| tail s == "" = True
+	| head s == l = checkString (tail s) l (amount+1)
+	| otherwise = checkString (tail s) (head s) 1

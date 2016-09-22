@@ -2,7 +2,6 @@ polDivision:: [Double] -> [Double] -> ([Double],[Double])
 polDivision dividends divisors
 	|length dividends >= length divisors	= computeQuotient dividends divisors []
 	
-	
 computeQuotient :: [Double] -> [Double] -> [Double] -> ([Double],[Double])
 computeQuotient dividends divisors quotients
 	| length dividends == length divisors	= (quotients ++ (snd (division (tail dividends) (tail divisors) [] divisionNumber [])), fst (division (tail dividends) (tail divisors) [] divisionNumber []))
