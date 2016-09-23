@@ -25,7 +25,7 @@ digits :: Integer -> Int
 digits n
 	| mod n 10 == n = 1
 	| otherwise = 1 + digits (div n 10)
-
+	
 wrapper :: [String] -> [Integer]
 wrapper (a:b:_) = lastDigits (read a::Integer) (read b::Int)
 

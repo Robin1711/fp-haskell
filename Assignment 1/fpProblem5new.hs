@@ -38,3 +38,11 @@ convertDivisor :: [Double] -> Double -> [Double] -- this function returns diviso
 convertDivisor [] n = []
 convertDivisor (x:xs) n = [x*n] ++ convertDivisor xs n
 
+wrapper :: String -> ([Double],[Double])
+wrapper line = polDivision (makeList num) (makeList denom)
+  where
+    num = takeWhile (/= '/') line
+    denom = tail (dropWhile (/= '/') line)
+    makeList str = map (\s -> read s::Double) (words str)
+
+main =  print . wrapper =<< getLine
