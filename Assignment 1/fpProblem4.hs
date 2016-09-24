@@ -1,14 +1,25 @@
 lastDigits :: Integer -> Int -> [Integer]
 lastDigits n d
-	| (n>0) && (digits s <= d) = putInList s (digits s)
+	| (n>0) && (digits s <= d) && larger n 0 d = putInList s d --if we have had a number with more than d digits, we need to print zeroes in front of s
+	| (n>0) && (digits s <= d) && not(larger n 0 d) = putInList s (digits s)
 	| (n>0) && (digits s > d) = putInList s d
 	where s = sumNum n n 0 d
 
-sumNum :: Integer -> Integer -> Integer -> Int -> Integer
+	
+sumNum :: Integer -> Integer -> Integer -> Int -> Integer --num is only d digits long every time
 sumNum num pow n d
-	| numberOfZeroes (num^n) > d	= 0
-	| n ==  pow = num^n
-	| otherwise = num^n + sumNum num pow (n+1) d
+	| n == pow = mod (num*pow) digit
+	| n == 0 = (mod (num^n) digit) + sumNum (mod (num^n) digit) pow (n+1) d
+	| otherwise = (mod (num*pow) digit) + sumNum (mod (num*pow) digit) pow (n+1) d
+	where digit = 10^d
+	
+
+larger :: Integer -> Integer -> Int -> Bool
+larger n pow d 
+	| n == pow && n^pow>(10^d) = True
+	| n == pow  = False
+	| n^pow>(10^d) = True
+	| otherwise = larger n (pow+1) d
 	
 numberOfZeroes :: Integer -> Int
 numberOfZeroes n
@@ -18,6 +29,7 @@ numberOfZeroes n
 putInList :: Integer -> Int -> [Integer]
 putInList s d
 	| d == 1 = [mod s 10]
+	| digits s < d = [0] ++ putInList s (d-1)
 	| mod s 10 == s = [s]
 	| otherwise = putInList (div s 10) (d-1) ++ [(mod s 10)]
 

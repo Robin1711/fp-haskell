@@ -1,6 +1,6 @@
 polDivision:: [Double] -> [Double] -> ([Double],[Double])
 polDivision dividends divisors
-	|length dividends >= length divisors	= (computeQuotient dividends divisors, computeRemainder dividends divisors)
+	|not(equalsZero divisors ) && (length dividends >= length divisors)	= (computeQuotient dividends divisors, computeRemainder dividends divisors)
 	
 computeRemainder :: [Double] -> [Double] -> [Double]
 computeRemainder dividends divisors
@@ -37,6 +37,13 @@ matchLength (d:dividends) (e: divisors) = [e] ++ matchLength dividends divisors
 convertDivisor :: [Double] -> Double -> [Double] -- this function returns divisor times divisionNumber
 convertDivisor [] n = []
 convertDivisor (x:xs) n = [x*n] ++ convertDivisor xs n
+
+equalsZero :: [Double] -> Bool
+equalsZero [] = True
+equalsZero (x:xs)
+	| x == 0 = equalsZero xs
+	| otherwise = False
+
 
 wrapper :: String -> ([Double],[Double])
 wrapper line = polDivision (makeList num) (makeList denom)
