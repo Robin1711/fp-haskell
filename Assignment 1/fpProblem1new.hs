@@ -1,33 +1,28 @@
-countHappyNumbers :: Int -> Int -> Int
+countHappyNumbers :: Integer -> Integer -> Int
 countHappyNumbers a b
-	| a > b = 0
-	| otherwise = length(removeUnwanted a b happys)
-	where happys = findHappyNumbers a b []
+	| a > b	 = 0
+	| otherwise = findHappyNumbers a b
+	
+findHappyNumbers :: Integer -> Integer -> Int
+findHappyNumbers a b
+	| a == b && isHappy a 	= 1
+	| a==b 					= 0
+	| isHappy a 			= 1 + findHappyNumbers (a+1) b
+	| otherwise 			= findHappyNumbers (a+1) b
 
-findHappyNumbers :: Int -> Int -> [Int] -> [Int]
-findHappyNumbers a b ys
-	| a > b = ys
-	| elem a ys = findHappyNumbers (a+1) b ys
-	| not (null happys) && head happys == a = findHappyNumbers (a+1) b (ys++happys)
-	| otherwise = findHappyNumbers (a+1) b ys
-	where happys = isHappy b a [] ys
-
-isHappy :: Int -> Int -> [Int] -> [Int] -> [Int]
-isHappy ub n xs ys
-	| n == 1 = xs++[1]
-	| n == 89 = []
-	| elem n ys = xs
-	| otherwise = isHappy ub rsd (xs++[n]) ys
-	where rsd = resultDigits n
-
-removeUnwanted :: Int -> Int -> [Int] -> [Int]
-removeUnwanted _ _ [] = []
-removeUnwanted lb ub (x:xs)
-	|  x > ub || x < lb = removeUnwanted lb ub xs
-	| elem x xs = removeUnwanted lb ub xs
-	| otherwise = [x] ++ removeUnwanted lb ub xs
-
-resultDigits :: Int -> Int
+isHappy :: Integer -> Bool
+isHappy a
+	| a == 1 	= True
+	| a == 4	= False
+	| otherwise = isHappy (resultDigits a)
+	
+resultDigits :: Integer -> Integer
 resultDigits n
 	| n < 10 = n^2
 	| otherwise = (mod n 10)^2 + resultDigits (div n 10)
+	
+
+wrapper :: [String] -> Int
+wrapper (a:b:_) = countHappyNumbers (read a::Integer) (read b::Integer)
+
+main =  print . wrapper . words =<< getLine
