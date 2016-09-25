@@ -19,7 +19,8 @@ useOp i j o
 	| o == -1 = i + j
 	| o == -2 = i - j
 	| o == -3 = i * j
-	| o == -4 = div i j
+	| o == -4 && j /= 0 = div i j
+	| otherwise = error "Division by zero" -- if the divisor j is 0 we return ????
 	
 getCharacter :: String -> Int
 getCharacter s
@@ -49,6 +50,5 @@ charToOperator ch
 	|ch == '-'	= -2
 	|ch == '*'	= -3
 	|ch == '/'	= -4
-
 
 main =  print . rpnEval =<< getLine

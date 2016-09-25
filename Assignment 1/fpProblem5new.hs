@@ -1,7 +1,11 @@
 polDivision:: [Double] -> [Double] -> ([Double],[Double])
 polDivision dividends divisors
-	|not(equalsZero divisors ) && (length dividends >= length divisors)	= (computeQuotient dividends divisors, computeRemainder dividends divisors)
-	
+	| equalsZero divisors = error "Dividends or divisors start with 0.0"
+	| (head divisors) == 0 = error "Head divisors starts with 0.0"
+	| (head dividends) == 0 = error "Head dividends starts with 0.0"
+	| length dividends < length divisors = error "Length divisors greater than length dividends"
+	| otherwise = (computeQuotient dividends divisors, computeRemainder dividends divisors) -- if it is a correct polynomial division start calculation
+
 computeRemainder :: [Double] -> [Double] -> [Double]
 computeRemainder dividends divisors
 	| length dividends < length divisors 	= dividends
