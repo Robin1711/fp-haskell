@@ -1,24 +1,40 @@
---isCorrectTakuzu :: [String] -> Bool
---isCorrectTakuzu xs
+isCorrectTakuzu :: [String] -> Integer
+isCorrectTakuzu xs = fill (getStrings (getRow 1 xs) (takuzuStrings (lengthOf xs))) 1 (lengthOf xs) xs
 
-
+lengthOf :: [a] -> Integer
+lengthOf [] = 0
+lengthOf (x:xs) = 1 + lengthOf xs
 
 --(takuzuStrings (length s))
 --function to add all correct solutions
 
-fillRow :: [String] -> [String] -> Int -> Int -> [String] --input: takuzu, possible input, row for input, number of rows
+{-fillRow :: [String] -> [String] -> Int -> Int -> [String] --input: takuzu, possible input, row for input, number of rows
 fillRow xs input n end
 	| n == end = newTakuzu (head input) xs n
 	| otherwise = fillRow (newTakuzu (head input) xs n) getStrings  (n+1)
+-}
+
+fill :: [String] -> Integer -> Integer -> [String] -> Integer
+fill xs n end ts
+	| (xs == []) && (n==end) && correctSolution ts = 1
+	| (xs == []) && (n==end) && not(correctSolution ts) = 0
+	| xs == [] = fill (getStrings (getRow (n+1) ts) (takuzuStrings end)) (n+1) end ts
+--	| xs == [] = 0
+	| n == end = fill (tail xs) n end (newTakuzu (head xs) ts n)
+	| otherwise = fill (getStrings (getRow (n+1) ts) (takuzuStrings end)) (n+1) end (newTakuzu (head xs) ts n) + fill (tail xs) n end (newTakuzu (head xs) ts n)
+	
+getRow :: Integer -> [String] -> String
+getRow 1 xs = head xs
+getRow n xs = getRow (n-1) (tail xs)
 
 --function to get takuzu for every input
 	
-newTakuzu :: String -> [String] -> Int -> [String] -- put string s on row within takuzu (first row is 0)
+newTakuzu :: String -> [String] -> Integer -> [String] -- put string s on row within takuzu (first row is 1)
 newTakuzu s (x:xs) row
-	| row == 0 = [s] ++ xs
+	| row == 1 = [s] ++ xs
 	| otherwise = [x] ++ newTakuzu s xs (row-1)
 
-getStrings :: String -> [String] -> [String] --get a row or column form Takuzu and return all possible answers
+getStrings :: String -> [String] -> [String] --get a row or column from Takuzu and return all possible answers
 getStrings s strings
 	| strings == [] 					= []
 	| correctAnswer s (head strings) 	= getStrings s (tail strings) ++ [(head strings)]
