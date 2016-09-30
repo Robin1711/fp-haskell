@@ -1,5 +1,6 @@
-isCorrectTakuzu :: [String] -> Integer
-isCorrectTakuzu xs = fill (getStrings (getRow 1 xs) (takuzuStrings (lengthOf xs))) 1 (lengthOf xs) xs
+isCorrectTakuzu :: [String] -> Bool
+isCorrectTakuzu xs  = correctSolution (change xs)
+{-	|otherwise = (fill (getStrings (getRow 1 xs) (takuzuStrings (lengthOf xs))) 1 (lengthOf xs) (change xs) == 1)
 
 lengthOf :: [a] -> Integer
 lengthOf [] = 0
@@ -48,7 +49,7 @@ correctAnswer s t
 	| (head s) == '.'			= correctAnswer (tail s) (tail t)
 	| otherwise 				= False
 
-
+-}
 -- following code determines if answer to filled in takuzu is correct
 correctSolution :: [String] -> Bool
 correctSolution xs = not(sameColumn xs) && not(sameRow xs) && (columnsCorrect xs)
@@ -146,4 +147,45 @@ sameNumber s zero one
 
 
 
---main =  print . isCorrectTakuzu .lines =<< getContents
+
+
+--fill rows and columns untill nothing changes anymore
+change :: [String] -> [String]
+change xs
+	| (diagonal (fillKnownColumns xs) == xs) && (fillKnownRows xs == xs) = xs
+	| diagonal (fillKnownColumns xs) == xs = change (fillKnownRows xs)
+	| fillKnownRows xs == xs = change (diagonal (fillKnownColumns xs))
+	| otherwise  = change (diagonal (fillKnownColumns (fillKnownRows xs)))
+
+--fill in everything you know for sure
+fillKnownRows :: [String] -> [String]
+fillKnownRows [] = []
+fillKnownRows (x:xs) = [between(reverse(double(reverse(double x))))] ++ fillKnownRows xs 
+
+fillKnownColumns :: [String] -> [String]
+fillKnownColumns [] = []
+fillKnownColumns xs = [between(reverse(double(reverse(double(getFirstColumn xs)))))] ++ fillKnownColumns (removeFirstColumn xs)
+
+diagonal :: [String] -> [String]
+diagonal [] = []
+diagonal xs = [getFirstColumn xs] ++ diagonal (removeFirstColumn xs)
+
+double :: String -> String
+double s
+	| (not((length s) > 2)) = s
+	| (head s) == (head (tail s)) && ((head s) /='.') = [(head s)] ++ [(head (tail s))] ++ double ([(opposite (head s))] ++ (tail (tail (tail s))))
+	| otherwise = [head s] ++ double (tail s)
+	
+between :: String -> String
+between s
+	| (not((length s) > 2)) = s
+	|(head s) == (head (tail(tail s))) && ((head s) /='.') && (head (tail s))=='.' =  [(head s)] ++ [opposite (head s)] ++ between (tail (tail s))
+	| otherwise = [(head s)] ++ between (tail s)
+
+opposite :: Char -> Char
+opposite c
+	| c == '0' = '1'
+	| c == '1' = '0'
+	| otherwise = '.'
+
+main =  print . isCorrectTakuzu .lines =<< getContents
