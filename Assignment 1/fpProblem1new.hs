@@ -1,12 +1,12 @@
 countHappyNumbers :: Integer -> Integer -> Int
 countHappyNumbers a b
-	| a > b	 = 0
+	| a > b		= 0
 	| otherwise = findHappyNumbers a b
 	
 findHappyNumbers :: Integer -> Integer -> Int
 findHappyNumbers a b
 	| a == b && isHappy a 	= 1
-	| a==b 					= 0
+	| a == b 				= 0
 	| isHappy a 			= 1 + findHappyNumbers (a+1) b
 	| otherwise 			= findHappyNumbers (a+1) b
 
@@ -18,7 +18,7 @@ isHappy a
 	
 resultDigits :: Integer -> Integer
 resultDigits n
-	| n < 10 = n^2
+	| n < 10 	= n^2
 	| otherwise = (mod n 10)^2 + resultDigits (div n 10)
 	
 

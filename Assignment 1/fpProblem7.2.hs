@@ -1,10 +1,23 @@
 isCorrectTakuzu :: [String] -> Bool
-isCorrectTakuzu xs  = correctSolution (change xs)
-{-	|otherwise = (fill (getStrings (getRow 1 xs) (takuzuStrings (lengthOf xs))) 1 (lengthOf xs) (change xs) == 1)
+isCorrectTakuzu xs  
+	|noDots (change xs) = correctSolution (change xs)
+	|otherwise = (checks xs == 1)
 
 lengthOf :: [a] -> Integer
 lengthOf [] = 0
 lengthOf (x:xs) = 1 + lengthOf xs
+
+noDots :: [String] -> Bool
+noDots [] = True
+noDots (x:xs)
+	| noDotsInString x 	= noDots xs
+	| otherwise			= False
+
+noDotsInString :: String -> Bool
+noDotsInString [] = True
+noDotsInString s
+	| (head s) == '.' 	= False
+	| otherwise 		= noDotsInString (tail s)
 
 --(takuzuStrings (length s))
 --function to add all correct solutions
@@ -15,14 +28,31 @@ fillRow xs input n end
 	| otherwise = fillRow (newTakuzu (head input) xs n) getStrings  (n+1)
 -}
 
-fill :: [String] -> Integer -> Integer -> [String] -> Integer
+	
+checks :: [String] -> Integer
+checks xs = lengthOf(filled) - numberOfSame (filled)
+	where filled = fill (getStrings (getRow 1 xs) (takuzuStrings (lengthOf xs))) 1 (lengthOf xs) (change xs)
+
+numberOfSame :: [[String]] -> Integer
+numberOfSame [] = 0
+numberOfSame (x:xs)
+	| sameList x xs = 1 + numberOfSame xs
+	| otherwise = numberOfSame xs
+	
+sameList :: [String] -> [[String]] -> Bool --return true if given row is same as one of the other rows
+sameList xs [] = False
+sameList xs xss
+	| xs == (head xss)	= True
+	| otherwise = sameList xs (tail xss)
+
+fill :: [String] -> Integer -> Integer -> [String] -> [[String]]
 fill xs n end ts
-	| (xs == []) && (n==end) && correctSolution ts = 1
-	| (xs == []) && (n==end) && not(correctSolution ts) = 0
+	| (xs == []) && (n==end) && correctSolution ts = [ts]
+	| (xs == []) && (n==end) && not(correctSolution ts) = []
 	| xs == [] = fill (getStrings (getRow (n+1) ts) (takuzuStrings end)) (n+1) end ts
 --	| xs == [] = 0
 	| n == end = fill (tail xs) n end (newTakuzu (head xs) ts n)
-	| otherwise = fill (getStrings (getRow (n+1) ts) (takuzuStrings end)) (n+1) end (newTakuzu (head xs) ts n) + fill (tail xs) n end (newTakuzu (head xs) ts n)
+	| otherwise = fill (getStrings (getRow (n+1) ts) (takuzuStrings end)) (n+1) end (newTakuzu (head xs) ts n) ++ fill (tail xs) n end (newTakuzu (head xs) ts n)
 	
 getRow :: Integer -> [String] -> String
 getRow 1 xs = head xs
@@ -49,7 +79,7 @@ correctAnswer s t
 	| (head s) == '.'			= correctAnswer (tail s) (tail t)
 	| otherwise 				= False
 
--}
+
 -- following code determines if answer to filled in takuzu is correct
 correctSolution :: [String] -> Bool
 correctSolution xs = not(sameColumn xs) && not(sameRow xs) && (columnsCorrect xs)
