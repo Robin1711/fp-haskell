@@ -160,11 +160,11 @@ change xs
 --fill in everything you know for sure
 fillKnownRows :: [String] -> [String]
 fillKnownRows [] = []
-fillKnownRows (x:xs) = [between(reverse(double(reverse(double x))))] ++ fillKnownRows xs 
+fillKnownRows (x:xs) = [maximumAmount(between(reverse(double(reverse(double x)))))] ++ fillKnownRows xs 
 
 fillKnownColumns :: [String] -> [String]
 fillKnownColumns [] = []
-fillKnownColumns xs = [between(reverse(double(reverse(double(getFirstColumn xs)))))] ++ fillKnownColumns (removeFirstColumn xs)
+fillKnownColumns xs = [maximumAmount(between(reverse(double(reverse(double(getFirstColumn xs))))))] ++ fillKnownColumns (removeFirstColumn xs)
 
 diagonal :: [String] -> [String]
 diagonal [] = []
@@ -181,6 +181,27 @@ between s
 	| (not((length s) > 2)) = s
 	|(head s) == (head (tail(tail s))) && ((head s) /='.') && (head (tail s))=='.' =  [(head s)] ++ [opposite (head s)] ++ between (tail (tail s))
 	| otherwise = [(head s)] ++ between (tail s)
+	
+	
+maximumAmount :: String -> String
+maximumAmount s
+	| fst(amount s) == div (length s) 2 = fillRest s '1'
+	| snd (amount s) == div (length s) 2 = fillRest s '0'
+	| otherwise = s
+	
+fillRest :: String -> Char -> String
+fillRest [] c = []
+fillRest s c
+	| (head s) == '.' = [c] ++ fillRest (tail s) c
+	| otherwise = [(head s)] ++ fillRest (tail s) c
+	
+amount :: String -> (Int, Int)
+amount [] = (0,0)
+amount s
+	| head s == '0' = (1+ fst (amount (tail s)), snd(amount (tail s)))
+	| head s == '1' = (fst (amount (tail s)), 1+ snd (amount (tail s)))
+	| otherwise = (fst (amount (tail s)), snd(amount (tail s))) 
+
 
 opposite :: Char -> Char
 opposite c
