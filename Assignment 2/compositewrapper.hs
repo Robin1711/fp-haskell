@@ -6,10 +6,10 @@ primes  =  sieve [2..]
 
 -- Insert your own code here.
 composites :: [(Integer,[Integer])]
-composites = comp [4..]
+composites = comp [4..] f
 	where
-		comp :: [Integer] -> [(Integer,[Integer])]
-		comp (x:xs) = (x,composition x) : comp [x | x <- xs, not(isPrime x)]
+		comp :: [Integer] -> (Integer -> [Integer]) -> [(Integer,[Integer])]
+		comp (x:xs) f = (x,f x) : comp [x | x <- xs, not(isPrime x)] f
 
 composition :: Integer -> [Integer]
 composition n

@@ -57,3 +57,10 @@ wrapper line = polDivision (makeList num) (makeList denom)
     makeList str = map (\s -> read s::Double) (words str)
 
 main =  print . wrapper =<< getLine
+--main = do  -- print . wrapper =<< getLine
+--    line <- getLine
+--    if line `notElem` []++getLine then 
+--        error ("unseen input: " ++ show line)
+--    else
+--        print $ wrapper line
+--        
