@@ -1,6 +1,6 @@
 isCorrectTakuzu :: [String] -> Bool
 isCorrectTakuzu xs  
-	|noDots (change xs) = correctSolution (change xs)
+	|noDots (change xs) = correctSolution (change xs) --if there are no dots left in the takuzu, it is completely filled in
 	|otherwise = (checks xs == 1)
 
 lengthOf :: [a] -> Integer
@@ -19,38 +19,31 @@ noDotsInString s
 	| (head s) == '.' 	= False
 	| otherwise 		= noDotsInString (tail s)
 
---(takuzuStrings (length s))
---function to add all correct solutions
-
-{-fillRow :: [String] -> [String] -> Int -> Int -> [String] --input: takuzu, possible input, row for input, number of rows
-fillRow xs input n end
-	| n == end = newTakuzu (head input) xs n
-	| otherwise = fillRow (newTakuzu (head input) xs n) getStrings  (n+1)
--}
-
 	
+-- check how many different answers there are for the takuzu
 checks :: [String] -> Integer
 checks xs = lengthOf(filled) - numberOfSame (filled)
 	where filled = fill (getStrings (getRow 1 xs) (takuzuStrings (lengthOf xs))) 1 (lengthOf xs) (change xs)
 
+-- function gives back number of same lists in the list.
 numberOfSame :: [[String]] -> Integer
 numberOfSame [] = 0
 numberOfSame (x:xs)
 	| sameList x xs = 1 + numberOfSame xs
 	| otherwise = numberOfSame xs
 	
-sameList :: [String] -> [[String]] -> Bool --return true if given row is same as one of the other rows
+sameList :: [String] -> [[String]] -> Bool --return true if given list is same as one of the other lists
 sameList xs [] = False
 sameList xs xss
 	| xs == (head xss)	= True
 	| otherwise = sameList xs (tail xss)
 
+-- fill takuzu with computed takuzuStrings and check if they give a correct solution
 fill :: [String] -> Integer -> Integer -> [String] -> [[String]]
 fill xs n end ts
 	| (xs == []) && (n==end) && correctSolution ts = [ts]
 	| (xs == []) && (n==end) && not(correctSolution ts) = []
 	| xs == [] = fill (getStrings (getRow (n+1) ts) (takuzuStrings end)) (n+1) end ts
---	| xs == [] = 0
 	| n == end = fill (tail xs) n end (newTakuzu (head xs) ts n)
 	| otherwise = fill (getStrings (getRow (n+1) ts) (takuzuStrings end)) (n+1) end (newTakuzu (head xs) ts n) ++ fill (tail xs) n end (newTakuzu (head xs) ts n)
 	
@@ -58,8 +51,7 @@ getRow :: Integer -> [String] -> String
 getRow 1 xs = head xs
 getRow n xs = getRow (n-1) (tail xs)
 
---function to get takuzu for every input
-	
+--function to get takuzu for every input	
 newTakuzu :: String -> [String] -> Integer -> [String] -- put string s on row within takuzu (first row is 1)
 newTakuzu s (x:xs) row
 	| row == 1 = [s] ++ xs
@@ -178,7 +170,8 @@ sameNumber s zero one
 
 
 
-
+-- code to fill takuzu on the basis of 2 of the same numbers in a row, 2 of the same numbers and a dot between them
+--and that there should be the same amount of zeroes and ones in a row
 
 
 --fill rows and columns untill nothing changes anymore
@@ -198,16 +191,19 @@ fillKnownColumns :: [String] -> [String]
 fillKnownColumns [] = []
 fillKnownColumns xs = [maximumAmount(between(reverse(double(reverse(double(getFirstColumn xs))))))] ++ fillKnownColumns (removeFirstColumn xs)
 
+-- switch columns to rows
 diagonal :: [String] -> [String]
 diagonal [] = []
 diagonal xs = [getFirstColumn xs] ++ diagonal (removeFirstColumn xs)
 
+-- 2 of the same numbers in a row means the 3rd should be the opposite number.
 double :: String -> String
 double s
 	| (not((length s) > 2)) = s
 	| (head s) == (head (tail s)) && ((head s) /='.') = [(head s)] ++ [(head (tail s))] ++ double ([(opposite (head s))] ++ (tail (tail (tail s))))
 	| otherwise = [head s] ++ double (tail s)
-	
+
+--2 of the same numbers and a dot between them, means the opposite number on the place of the dot
 between :: String -> String
 between s
 	| (not((length s) > 2)) = s
@@ -215,6 +211,7 @@ between s
 	| otherwise = [(head s)] ++ between (tail s)
 	
 	
+-- when half of the amount of places is filled by a number, the rest should be filled by the opposite number
 maximumAmount :: String -> String
 maximumAmount s
 	| fst(amount s) == div (length s) 2 = fillRest s '1'

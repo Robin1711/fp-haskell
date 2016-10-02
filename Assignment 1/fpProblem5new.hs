@@ -57,3 +57,5 @@ wrapper line = polDivision (makeList num) (makeList denom)
     makeList str = map (\s -> read s::Double) (words str)
 
 main =  print . wrapper =<< getLine
+
+
