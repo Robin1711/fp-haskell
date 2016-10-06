@@ -70,7 +70,7 @@ getVal s (x:xs)
 	| s == fst x = snd x
 	| otherwise = getVal s xs
 
-valuations :: [(Name,Domain)] -> [Valuation]
+{-valuations :: [(Name,Domain)] -> [Valuation]
 valuations xs = combinePairs (formPairs xs)
 
 formPairs :: [(Name,Domain)] -> [Valuation]
@@ -111,7 +111,7 @@ func xs
 toNumber :: String -> Integer -> Integer
 toNumber [] i = i
 toNumber (x:xs) i = getNumber xs (i*10 + (toInteger (digitToInt x)))
-
+-}
 tokenize :: String -> [String]
 tokenize "" = []
 tokenize s 
@@ -127,5 +127,21 @@ isVariable :: Char -> Bool
 isVariable c = (fromEnum c < 91 && 64<fromEnum c) || (fromEnum c < 123 && 96<fromEnum c)
 
 --(Var "x") :+: (Val 2 :*: Val 3)
+
+
+---------------------------------------
+--valuations
+valuations :: [(Name,Domain)] -> [Valuation]
+valuations (x:xs)
+	| (snd x) == [] = []
+	| otherwise = combine [(fst x, head (snd x))] xs ++ valuations ([(fst x, tail (snd x))] ++ xs)
+
+combine :: Valuation -> [(Name,Domain)] -> [Valuation]
+combine v [] = [v]
+combine v (x:xs)
+	| xs == [] && (snd x) == [] = []
+	|otherwise = [v ++ [(fst x, head (snd x))]] ++ combine v ([(fst x, tail (snd x))] ++ xs)
+
+
 
 
