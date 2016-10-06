@@ -141,6 +141,21 @@ combine v [] = [v]
 combine v (x:xs)
 	| xs == [] && (snd x) == [] = []
 	|otherwise = [v ++ [(fst x, head (snd x))]] ++ combine v ([(fst x, tail (snd x))] ++ xs)
+	
+---------------------------------------------
+--pytriples
+{-pytriples :: Integer -> [Valuation]
+pytriples n
+	| func ((Var "a" :*: Var "a") :+: (Var "b" :*: Var "b")) (Var "c" :*: Var "c") (correct (valuations [("a",[1..n]),("b",[1..n])])) (valuations[("c",[1..n])])
+
+func :: Expr -> Expr -> [Valuation] -> [Valuations]
+func e1 e2 xs
+  (
+  -}
+correct :: [Valuation] -> [Valuation]
+correct (x:xs)
+	| snd (head x) <= snd (head(tail x)) = [x] ++ correct xs
+	| otherwise = correct xs
 
 
 
