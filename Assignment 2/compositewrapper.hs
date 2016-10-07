@@ -6,7 +6,7 @@ primes  =  sieve [2..]
 
 -- Insert your own code here.
 composites :: [(Integer,[Integer])]
-composites = comp [4..] f
+composites = comp [4..] composition
 	where
 		comp :: [Integer] -> (Integer -> [Integer]) -> [(Integer,[Integer])]
 		comp (x:xs) f = (x,f x) : comp [x | x <- xs, not(isPrime x)] f
@@ -14,13 +14,13 @@ composites = comp [4..] f
 composition :: Integer -> [Integer]
 composition n
 	| n == 1 = []
-	| otherwise = p : composition (div n p)
-	where p = firstEl n primes
+	| otherwise = p : composition (n `div` p)
+	where p = devider n primes
 
-firstEl :: Integer -> [Integer] -> Integer
-firstEl n (x:xs)
-	| mod n x == 0 = x
-	| otherwise = firstEl n xs
+devider :: Integer -> [Integer] -> Integer
+devider n (x:xs)
+	| n `mod` x == 0 = x
+	| otherwise = devider n xs
 
 isPrime :: Integer -> Bool
 isPrime n = n == head (dropWhile (<n) primes)

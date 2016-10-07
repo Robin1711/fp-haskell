@@ -3,13 +3,14 @@ fibcats :: [Integer]
 fibcats  =  sieve [0..]
   where
     sieve :: [Integer] -> [Integer]
-    sieve (p:xs)  =  p : sieve [x | x <- xs, isFib x || isCat x]
+    sieve (p:xs)  =  p : sieve [x | x <- xs, (isFib x || isCat x)]
 
 fibonacci :: [Integer]
 fibonacci = 0 : calc [0,1]
 	where
 		calc :: [Integer] -> [Integer]
-		calc (f:xs) = last xs : calc [last xs, (f + last xs)]
+		calc (x:xs) = lst : calc [lst, (x + lst)]
+			where lst = last xs
 
 isFib :: Integer -> Bool
 isFib n = n == head (dropWhile (<n) fibonacci)
@@ -29,7 +30,6 @@ fact n = n * fact (n-1)
 
 isCat :: Integer -> Bool
 isCat n = n == head (dropWhile (<n) catalan)
-
 
 -- Do not change the following wrapper code
 wrapper :: String -> [Integer]
