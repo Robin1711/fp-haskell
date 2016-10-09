@@ -89,6 +89,23 @@ combine v (x:xs)
 ----------	pytriples	-------------------------
 {-
 pytriples :: Integer -> [Valuation]
+pytriples n = validateTriples (computeTriples n)
+	where
+		validateTriples :: [Valuation] -> [Valuation]
+		validateTriples (pt:xs)= pt : validateTriples [x | x <- xs, isPytriple x]
+-}
+
+computeTriples :: Integer -> [Valuation]
+computeTriples n = filter isCorrect (valuations [("a",[1..n]), ("b",[1..n]), ("c",[1..n])])
+
+isCorrect :: Valuation -> Bool
+isCorrect val = snd (head val) < snd (head (tail val))
+
+{-
+isPytriple :: Valuation -> Bool
+isPytriple (v:vs)
+
+pytriples :: Integer -> [Valuation]
 pytriples n
 	| func ((Var "a" :*: Var "a") :+: (Var "b" :*: Var "b")) (Var "c" :*: Var "c") (correct (valuations [("a",[1..n]),("b",[1..n])])) (valuations[("c",[1..n])])
 
@@ -121,14 +138,30 @@ func s
 	| o == "*" = func (takeWhile f s) :*: func (tail (dropWhile f s))
 	| o == "/" = func (takeWhile f s) :/: func (tail (dropWhile f s))
 	| o == "%" = func (takeWhile f s) :%: func (tail (dropWhile f s))
+	| otherwise = error("We came here")
 	where { o = head (dropWhile notOperator s);
 			f = notOperator}
+
+--    toExpr "2*a+b" ----> ((2*a)+b)  
+--(2 * a) + b
+--takWhile notOperator 
+
+--takeWhile f s == 2
+--head (dropWhile notOperator s) == o
+--head (tail (dropWhile f s)) == a
+--tail (tail (dropWhile f s)) == "+", "b"
 
 isAllNumber :: String -> Bool
 isAllNumber s = all isNumber s
 
 notOperator :: String -> Bool
-notOperator (x:xs) = True
+notOperator (x:xs)
+	| x == '+' = False
+	| x == '-' = False
+	| x == '*' = False
+	| x == '/' = False
+	| x == '%' = False
+	| otherwise = True
 
 --toNumber :: String -> Integer -> Integer
 --toNumber [] i = i
