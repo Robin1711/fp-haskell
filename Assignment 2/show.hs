@@ -121,26 +121,55 @@ correct (x:xs)
 
 ------- Exercise 5:	-----------------------------
 toExpr :: String -> Expr
-toExpr s = func (tokenize s)
+toExpr s = parse (tokenize s)
 
---create :: [String] -> Expr
---create (x:xs)
---	| isNumber (head x) = (Val (toNumber x)) ++ (create xs)
---	| isVariable (head x) = (Var x ) ++ (create xs)
---	| otherwise = ":" ++ x ++ ":" ++ (create xs)
+{-
 
-func :: [String] -> Expr
-func s
-	| tail s == [] && isAllNumber (head s) = Val (toNumber (head s))
-	| tail s == [] && all isVariable (head s) = Var (head s)
-	| o == "+" = func (takeWhile f s) :+: func (tail (dropWhile f s))
-	| o == "-" = func (takeWhile f s) :-: func (tail (dropWhile f s))
-	| o == "*" = func (takeWhile f s) :*: func (tail (dropWhile f s))
-	| o == "/" = func (takeWhile f s) :/: func (tail (dropWhile f s))
-	| o == "%" = func (takeWhile f s) :%: func (tail (dropWhile f s))
-	| otherwise = error("We came here")
-	where { o = head (dropWhile notOperator s);
-			f = notOperator}
+--parseE :: [String] -> Expr
+--parseE (x:xs)
+--	| o == "+" = parseT x :+: parseEp
+--	| o == "-" = parseT x :-: parseEp
+--	| o == "*" = parseT x :*: parseEp
+--	| o == "/" = parseT x :/: parseEp
+--	| o == "%" = parseT x :%: parseEp
+--	where o = (head xs)
+
+parser
+
+parseE :: [String] -> Expr
+parseE (x:xs) = parseT parseEp
+
+parseEp :: [String] -> Expr
+parseEp (x:xs)
+	| x == "+" = :+: parseT parseEp
+	| x == "-" = :-: parseT parseEp
+	| otherwise = 
+
+parseT :: [String] -> Expr
+parseT (x:xs) = parseF parseTp
+
+parseTp :: [String] -> Expr
+parseTp (x:xs)
+	| x == "*" = :*: parseT parseEp
+	| x == "/" = :/: parseT parseEp
+	| x == "%" = :%: parseT parseEp
+	| otherwise = 
+
+parseF :: [String] -> Expr
+parseF (x:xs)
+	| xs == [] && (all isNumber x) = Var (head s) -- <variable>
+	| xs == [] && (all isVariable x) = Val (toNumber (head s)) -- <integer> 
+	| otherwise = parseE (x:xs)
+
+{-
+
+E 	->	T E’
+E’ 	-> 	+ T E’ | - T E' | <empty string>
+T 	->	F T’
+T’ 	-> 	* F T’ | / F T’ | % F T’ | <empty string>
+F 	-> 	(E) | <integer> | <variable>
+
+-}
 
 --    toExpr "2*a+b" ----> ((2*a)+b)  
 --(2 * a) + b
@@ -150,6 +179,22 @@ func s
 --head (dropWhile notOperator s) == o
 --head (tail (dropWhile f s)) == a
 --tail (tail (dropWhile f s)) == "+", "b"
+
+
+-}
+
+parse :: [String] -> Expr
+parse s
+	| tail s == [] && isAllNumber (head s) = Val (toNumber (head s))
+	| tail s == [] && all isVariable (head s) = Var (head s)
+	| o == "+" = parse (takeWhile f s) :+: parse (tail (dropWhile f s))
+	| o == "-" = parse (takeWhile f s) :-: parse (tail (dropWhile f s))
+	| o == "*" = parse (takeWhile f s) :*: parse (tail (dropWhile f s))
+	| o == "/" = parse (takeWhile f s) :/: parse (tail (dropWhile f s))
+	| o == "%" = parse (takeWhile f s) :%: parse (tail (dropWhile f s))
+	| otherwise = error("We came here")
+	where { o = head (dropWhile notOperator s);
+			f = notOperator}
 
 isAllNumber :: String -> Bool
 isAllNumber s = all isNumber s
@@ -162,10 +207,6 @@ notOperator (x:xs)
 	| x == '/' = False
 	| x == '%' = False
 	| otherwise = True
-
---toNumber :: String -> Integer -> Integer
---toNumber [] i = i
---toNumber (x:xs) i = toNumber xs (i*10 + (toInteger (digitToInt x)))
 
 toNumber :: String -> Integer
 toNumber (x:[]) = toInteger (digitToInt x)
