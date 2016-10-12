@@ -15,12 +15,12 @@ composition :: Integer -> [Integer]
 composition n
 	| n == 1 = []
 	| otherwise = p : composition (n `div` p)
-	where p = devider n primes
+	where p = divider n primes
 
-devider :: Integer -> [Integer] -> Integer
-devider n (x:xs)
-	| n `mod` x == 0 = x
-	| otherwise = devider n xs
+divider :: Integer -> [Integer] -> Integer
+divider n (x:xs)
+	| n `rem` x == 0 = x
+	| otherwise = divider n xs
 
 isPrime :: Integer -> Bool
 isPrime n = n == head (dropWhile (<n) primes)

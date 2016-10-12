@@ -1,7 +1,6 @@
 import Data.Char
 import Data.List
 
-
 type Name = String
 type Domain = [Integer]
 type Valuation = [(Name,Integer)]
@@ -76,16 +75,35 @@ getVal s (x:xs)
 
 ----------	valuations	-------------------------
 valuations :: [(Name,Domain)] -> [Valuation]
-valuations (x:xs)
-	| (snd x) == [] = []
-	| otherwise = combine [(fst x, head (snd x))] xs ++ valuations ([(fst x, tail (snd x))] ++ xs)
+valuations ((n,d):xs)
+	| d == [] = []
+	| otherwise = combine [(n, head d] xs ++ valuations ([(n, tail d)] ++ xs)
 
 combine :: Valuation -> [(Name,Domain)] -> [Valuation]
 combine v [] = [v]
-combine v (x:xs)
-	| xs == [] && (snd x) == [] = []
-	|otherwise = [v ++ [(fst x, head (snd x))]] ++ combine v ([(fst x, tail (snd x))] ++ xs)
-	
+combine v ((n,d):xs)
+	| xs == [] && d == [] = []
+	| otherwise = [v ++ [(n, head d]] ++ combine v ([(n, tail d)] ++ xs)
+
+--valuations :: [(Name,Domain)] -> [Valuation]
+--valuations (xs:xss) 
+--	| xss == [] = xs [(),(),()]
+--	| valuations xss
+--	| [x ++ (valuations xss) | x:xs]
+--x = (Name,Domain)
+
+	--xs = [("a",1), ("a",2)]
+	--yss = [[("b",2), ("b",3)], [("c",1), ("c",2)]]
+
+f :: Valuation -> [Valuation] -> [Valuation]
+f (x:xs) (ys:yss) = [[x]] ++ (g [ys | ys <- yss]) ++ f xs (ys:yss)
+f [] _ = []
+f (x:xs) [] = [[x]]
+
+g :: [Valuation] -> [Valuation]
+g (ys:yss) = f ys yss
+g _ = [[]]
+
 ----------	pytriples	-------------------------
 {-
 pytriples :: Integer -> [Valuation]

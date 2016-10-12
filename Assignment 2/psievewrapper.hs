@@ -1,3 +1,5 @@
+import Data.List
+
 primes :: [Integer]
 primes  =  2 : sieve [1..]
   where
@@ -11,10 +13,11 @@ removals = calc [1..]
 		calc (j:xs) = [i + j + 2*i*j | i <- [1..j]] ++ calc xs
 
 isRemoval :: Integer -> Bool
-isRemoval n = elem n (take (sum [1..j]) removals)
+isRemoval n = elem n (take (sum [1..j]) removals))
 			where j = fromInteger ((div n 3) + 1)
 
 -- Do not change the following wrapper code
 wrapper :: String -> [Integer]
 wrapper input = take (read input::Int) primes
 main =  print . wrapper =<< getLine
+
