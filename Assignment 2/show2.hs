@@ -138,8 +138,8 @@ correct (x:xs)
 	| otherwise = correct xs
 
 ------- Exercise 5:	-----------------------------
-toExpr :: String -> Expr
-toExpr s = parse (tokenize s)
+--toExpr :: String -> Expr
+--toExpr s = parse (tokenize s)
 
 {-
 
@@ -200,51 +200,22 @@ F 	-> 	(E) | <integer> | <variable>
 
 
 -}
-
+{-
 parse :: [String] -> Expr
 parse s
-	| not(tail s == []) && o == "+" =  parse ( (takeWhile f1 s) ) :+: ( parse (tail (dropWhile f1 s)) ) --er moeten haken om gedeelte voor en na plus komen te staan maar hoe?
-	| not(tail s == []) && o == "-" = (parse (takeWhile f2 s)) :-: (parse (tail (dropWhile f2 s)))
-	| not(tail s == []) && o == "*" = ( parse (takeWhile f3 s) ) :*: ( parse (tail (dropWhile f3 s)) )
-	| not(tail s == []) && o == "/" = (parse (takeWhile f4 s)) :/: (parse (tail (dropWhile f4 s)))
-	| not(tail s == []) && o == "%" = (parse (takeWhile f5 s)) :%: (parse (tail (dropWhile f5 s)))
 	| tail s == [] && isAllNumber (head s) = Val (toNumber (head s))
 	| tail s == [] && all isVariable (head s) = Var (head s)
+	| o == "+" = parse (takeWhile f s) :+: parse (tail (dropWhile f s))
+	| o == "-" = parse (takeWhile f s) :-: parse (tail (dropWhile f s))
+	| o == "*" = parse (takeWhile f s) :*: parse (tail (dropWhile f s))
+	| o == "/" = parse (takeWhile f s) :/: parse (tail (dropWhile f s))
+	| o == "%" = parse (takeWhile f s) :%: parse (tail (dropWhile f s))
 	| otherwise = error("We came here")
 	where { o = head (dropWhile notOperator s);
-			f1 = notOperator1;
-			f2 = notOperator2;
-			f3 = notOperator3;
-			f4 = notOperator4;
-			f5 = notOperator5}
+			f = notOperator}
 
 isAllNumber :: String -> Bool
 isAllNumber s = all isNumber s
-
-notOperator1 :: String -> Bool
-notOperator1 (x:xs)
-	| x == '+' = False
-	| otherwise =True
-
-notOperator2 :: String -> Bool
-notOperator2 (x:xs)
-	| x == '-' = False
-	| otherwise =True
-	
-notOperator3 :: String -> Bool
-notOperator3 (x:xs)
-	| x == '*' = False
-	| otherwise =True
-
-notOperator4 :: String -> Bool
-notOperator4 (x:xs)
-	| x == '/' = False
-	| otherwise =True
-
-notOperator5 :: String -> Bool
-notOperator5 (x:xs)
-	| x == '%' = False
-	| otherwise =True
 
 notOperator :: String -> Bool
 notOperator (x:xs)
@@ -274,3 +245,63 @@ isVariable :: Char -> Bool
 isVariable c = (fromEnum c < 91 && 64<fromEnum c) || (fromEnum c < 123 && 96<fromEnum c)
 
 --(Var "x") :+: (Val 2 :*: Val 3)
+-}
+
+---------------------------------------
+toExpr :: String -> Expr
+toExpr s = fst (parser s)
+
+parser :: String -> (Expr,[String])
+parser str = parseE (Var "a") (tokenize str)
+
+parseE:: Expr -> [String] -> (Expr,[String])
+parseE accepted tokens = parseE' acc rest
+	where (acc,rest) = parseT accepted tokens
+	
+parseE' :: Expr -> [String] -> (Expr,[String])
+parseE' accepted ("+":tokens) = parseE' acc rest
+	where (acc,rest) = parseT (accepted :+: expr) leftover
+		where (expr,leftover) = parseF tokens
+parseE' accepted ("-":tokens) = parseE' acc rest
+	where (acc,rest) = parseT (accepted :-: expr) leftover
+		where (expr,leftover) = parseF tokens
+parseE' accepted tokens = (accepted, tokens)
+	
+parseT:: Expr -> [String] -> (Expr,[String])
+parseT accepted tokens = parseT' acc rest
+	where (acc,rest) = parseF tokens
+	
+parseT' :: Expr -> [String] -> (Expr,[String])
+parseT' accepted ("*":tokens) = parseT' acc rest
+	where (acc,rest) = parseT (accepted :*: expr) leftover
+		where (expr,leftover) = parseF tokens
+parseT' accepted ("/":tokens) = parseT' acc rest
+	where (acc,rest) = parseT (accepted :/: expr) leftover
+		where (expr,leftover) = parseF tokens
+parseT' accepted ("%":tokens) = parseT' acc rest
+	where (acc,rest) = parseT (accepted :%: expr) leftover
+		where (expr,leftover) = parseF tokens
+parseT' accepted tokens = (accepted, tokens)
+
+
+parseF :: [String] -> (Expr,[String])
+parseF [] = error "Parse error ... abort"
+parseF (tok:tokens)
+	|isAlpha (head tok) = (Var tok, tokens)
+	|isDigit (head tok) = (Val (toNumber tok), tokens)
+	| otherwise = (fst(parser tok), tokens)
+
+toNumber :: String -> Integer
+toNumber (x:[]) = toInteger (digitToInt x)
+toNumber (x:xs) = ((toInteger (digitToInt x))*10^(length xs)) + toNumber xs
+
+tokenize :: String -> [String]
+tokenize "" = []
+tokenize s 
+	| head s == ' ' = tokenize (tail s)
+	| isNumber (head s) = [takeWhile isNumber s] ++ tokenize (dropWhile isNumber s)
+	| isVariable (head s) = [takeWhile isVariable s] ++ tokenize (dropWhile isVariable s)
+	| otherwise = [[head s]] ++ tokenize (tail s)
+	
+isVariable :: Char -> Bool
+isVariable c = (fromEnum c < 91 && 64<fromEnum c) || (fromEnum c < 123 && 96<fromEnum c)
