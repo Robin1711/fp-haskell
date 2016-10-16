@@ -19,7 +19,7 @@ par :: String -> String
 par s = "(" ++ s ++ ")"
 
 instance Show Expr where
-	show (Val i) = [intToDigit (fromInteger i)]
+	show (Val i) = show i
 	show (Var x) = x
 	show (p :+: q) = par(show p ++ "+" ++ show q)
 	show (p :-: q) = par(show p ++ "-" ++ show q)
@@ -30,7 +30,7 @@ instance Show Expr where
 ------- Exercise 2:	-----------------------------
 
 vars :: Expr -> [String]
-vars expr = sort (rmduplicates (variables expr))
+vars expr = sort (remove (variables expr))
 
 variables :: Expr -> [String]
 variables (Val i) = []
@@ -41,18 +41,18 @@ variables (p :*: q) = (variables p) ++ (variables q)
 variables (p :/: q) = (variables p) ++ (variables q)
 variables (p :%: q) = (variables p) ++ (variables q)
 
-rmduplicates :: Eq a => [a] -> [a]
-rmduplicates [] = []
-rmduplicates (x:xs)
-	| elem x xs = rmduplicates xs
-	| otherwise = x : rmduplicates xs
+remove :: [String] -> [String]
+remove [] = []
+remove (x:xs)
+	| elem x xs = remove xs
+	| otherwise = x : remove xs
 
 ------- Exercise 3:	-----------------------------
 
 evalExpr :: Expr -> Valuation -> Integer
-evalExpr e vals
-	| verify (vars e) (map fst vals) = calc e vals
-	| otherwise = error "not all variables are values assigned"
+evalExpr e val
+	| verify (vars e) (map fst val) = calc e val
+	| otherwise = error "not all variables have values assigned"
 
 verify :: [String] -> [Name] -> Bool
 verify [] _ = True
@@ -108,125 +108,81 @@ isPytriple val = evalExpr e1 val == evalExpr e2 val
 			e2 = (Var "c" :*: Var "c")}
 
 ------- Exercise 5:	-----------------------------
---toExpr :: String -> Expr
---toExpr s = parse (tokenize s)
-
---    toExpr "2*a+b" ----> ((2*a)+b)  
---(2 * a) + b
---takWhile notOperator 
-
---takeWhile f s == 2
---head (dropWhile notOperator s) == o
---head (tail (dropWhile f s)) == a
---tail (tail (dropWhile f s)) == "+", "b"
-
-{-
-parse :: [String] -> Expr
-parse s
-	| tail s == [] && isAllNumber (head s) = Val (toNumber (head s))
-	| tail s == [] && all isVariable (head s) = Var (head s)
-	| o == "+" = parse (takeWhile f s) :+: parse (tail (dropWhile f s))
-	| o == "-" = parse (takeWhile f s) :-: parse (tail (dropWhile f s))
-	| o == "*" = parse (takeWhile f s) :*: parse (tail (dropWhile f s))
-	| o == "/" = parse (takeWhile f s) :/: parse (tail (dropWhile f s))
-	| o == "%" = parse (takeWhile f s) :%: parse (tail (dropWhile f s))
-	| otherwise = error("We came here")
-	where { o = head (dropWhile notOperator s);
-			f = notOperator}
-
-isAllNumber :: String -> Bool
-isAllNumber s = all isNumber s
-
-notOperator :: String -> Bool
-notOperator (x:xs)
-	| x == '+' = False
-	| x == '-' = False
-	| x == '*' = False
-	| x == '/' = False
-	| x == '%' = False
-	| otherwise = True
-
-toNumber :: String -> Integer
-toNumber (x:[]) = toInteger (digitToInt x)
-toNumber (x:xs) = ((toInteger (digitToInt x))*10^(length xs)) + toNumber xs
-
-tokenize :: String -> [String]
-tokenize "" = []
-tokenize s 
-	| head s == ' ' = tokenize (tail s)
-	| isNumber (head s) = [takeWhile isNumber s] ++ tokenize (dropWhile isNumber s)
-	| isVariable (head s) = [takeWhile isVariable s] ++ tokenize (dropWhile isVariable s)
-	| otherwise = [[head s]] ++ tokenize (tail s)
-
---isNumber :: Char -> Bool
---isNumber c = (fromEnum c < 58 && 47<fromEnum c)
-
-isVariable :: Char -> Bool
-isVariable c = (fromEnum c < 91 && 64<fromEnum c) || (fromEnum c < 123 && 96<fromEnum c)
-
---(Var "x") :+: (Val 2 :*: Val 3)
--}
-
----------------------------------------
 toExpr :: String -> Expr
 toExpr s = fst (parser s)
 
 parser :: String -> (Expr,[String])
-parser str = parseE (Var "a") (tokenize str)
+parser str = parseE (tokenize str)
 
-{-
-parser :: String -> (Expr,[String])
-parser str = parseE e s
-	where (e,s) = parseF (tokenize (tail str))
--}
-
-parseE:: Expr -> [String] -> (Expr,[String])
-parseE accepted tokens = parseE' acc rest
-	where (acc,rest) = parseT accepted tokens
+parseE:: [String] -> (Expr,[String])
+parseE tokens = parseE' acc rest
+	where (acc,rest) = parseT tokens
 
 parseE' :: Expr -> [String] -> (Expr,[String])
-parseE' accepted ("+":tokens) = parseE' acc rest
-	where (acc,rest) = parseT (accepted :+: expr) leftover
-		where (expr,leftover) = parseF tokens
-parseE' accepted ("-":tokens) = parseE' acc rest
-	where (acc,rest) = parseT (accepted :-: expr) leftover
-		where (expr,leftover) = parseF tokens
+parseE' accepted ("+":tokens) = parseE' (accepted :+: acc) rest
+	where (acc,rest) = parseT tokens
+parseE' accepted ("-":tokens) = parseE' (accepted :-: acc) rest
+	where (acc,rest) = parseT tokens
 parseE' accepted tokens = (accepted, tokens)
 	
-parseT:: Expr -> [String] -> (Expr,[String])
-parseT accepted tokens = parseT' acc rest
+parseT:: [String] -> (Expr,[String])
+parseT tokens = parseT' acc rest
 	where (acc,rest) = parseF tokens
 
 parseT' :: Expr -> [String] -> (Expr,[String])
-parseT' accepted ("*":tokens) = parseT' acc rest
-	where (acc,rest) = parseT (accepted :*: expr) leftover
-		where (expr,leftover) = parseF tokens
-parseT' accepted ("/":tokens) = parseT' acc rest
-	where (acc,rest) = parseT (accepted :/: expr) leftover
-		where (expr,leftover) = parseF tokens
-parseT' accepted ("%":tokens) = parseT' acc rest
-	where (acc,rest) = parseT (accepted :%: expr) leftover
-		where (expr,leftover) = parseF tokens
+parseT' accepted ("*":tokens) = parseT' (accepted :*: expr) leftover
+	where (expr,leftover) = parseF tokens
+parseT' accepted ("/":tokens) = parseT' (accepted :/: expr) leftover
+	where (expr,leftover) = parseF tokens
+parseT' accepted ("%":tokens) = parseT' (accepted :%: expr) leftover
+	where (expr,leftover) = parseF tokens
 parseT' accepted tokens = (accepted, tokens)
 
 parseF :: [String] -> (Expr,[String])
-parseF [] = error "Parse error ... abort"
 parseF (tok:tokens)
-	| isAlpha (head tok) = (Var tok, tokens)
-	| isDigit (head tok) = (Val (toNumber tok), tokens)
-	| otherwise = (fst(parser tok), tokens)
+	| areLetters tok = (Var tok, tokens)
+	| areDigits tok = (Val (toNumber tok), tokens)
+	| areBrackets tok = (fst(parseE(taking tokens)),(dropping tokens)) --an expression between brackets
+	| otherwise = error "Parse error ... abort"
+	
+areLetters :: String -> Bool
+areLetters "" = True
+areLetters s
+	| isAlpha(head s) = areLetters (tail s)
+	| otherwise = False
+	
+areDigits :: String -> Bool
+areDigits "" = True
+areDigits s
+	| isDigit(head s) = areDigits (tail s)
+	| otherwise = False
+	
+areBrackets :: String -> Bool
+areBrackets s = (s == "(") || (s == ")")
 
 toNumber :: String -> Integer
 toNumber (x:[]) = toInteger (digitToInt x)
 toNumber (x:xs) = ((toInteger (digitToInt x))*10^(length xs)) + toNumber xs
 
+--take all strings in list before element ")"
+taking :: [String] -> [String]
+taking (tok:tokens)
+	| head tokens == ")" = [tok]
+	| otherwise = [tok] ++ taking tokens
+
+--take all strings in list after element ")"
+dropping:: [String] -> [String]
+dropping (tok:tokens)
+	| tok == ")" = tokens
+	| otherwise = dropping tokens
+
+--transform a string expression into a list of tokens	
 tokenize :: String -> [String]
 tokenize "" = []
-tokenize s 
+tokenize s
 	| head s == ' ' = tokenize (tail s)
-	| isNumber (head s) = [takeWhile isNumber s] ++ tokenize (dropWhile isNumber s)
-	| isVariable (head s) = [takeWhile isVariable s] ++ tokenize (dropWhile isVariable s)
+	| isNotOperator (head s) = [takeWhile isNotOperator s] ++ tokenize (dropWhile isNotOperator s)
 	| otherwise = [[head s]] ++ tokenize (tail s)
 	
-isVariable :: Char -> Bool
-isVariable c = (fromEnum c < 91 && 64<fromEnum c) || (fromEnum c < 123 && 96<fromEnum c)
+isNotOperator :: Char -> Bool
+isNotOperator c = not((c == '(') || (c == ')') || (c == '+') || (c == '-') || (c == '*') || (c == '/') || (c == '%') )
