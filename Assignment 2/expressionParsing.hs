@@ -1,3 +1,5 @@
+ --			Assignment lab 2b			--
+
 import Data.Char
 import Data.List
 
@@ -30,7 +32,7 @@ instance Show Expr where
 ------- Exercise 2:	-----------------------------
 
 vars :: Expr -> [String]
-vars expr = sort (remove (variables expr))
+vars expr = sort (removeDoubles (variables expr))
 
 variables :: Expr -> [String]
 variables (Val i) = []
@@ -41,11 +43,11 @@ variables (p :*: q) = (variables p) ++ (variables q)
 variables (p :/: q) = (variables p) ++ (variables q)
 variables (p :%: q) = (variables p) ++ (variables q)
 
-remove :: [String] -> [String]
-remove [] = []
-remove (x:xs)
-	| elem x xs = remove xs
-	| otherwise = x : remove xs
+removeDoubles :: [String] -> [String]
+removeDoubles [] = []
+removeDoubles (x:xs)
+	| elem x xs = removeDoubles xs
+	| otherwise = x : removeDoubles xs
 
 ------- Exercise 3:	-----------------------------
 
@@ -75,6 +77,8 @@ getVal s (x:xs)
 	| s == fst x = snd x
 	| otherwise = getVal s xs
 
+------- Exercise 4?	-----------------------------
+
 ----------	valuations	-------------------------
 
 valuations :: [(Name,Domain)] -> [Valuation]
@@ -82,6 +86,7 @@ valuations ((n,d):xs)
 	| d == [] = []
 	| otherwise = combine [(n, head d)] xs ++ valuations ([(n, tail d)] ++ xs)
 
+-- combine the valuation with every possible valuations with input [Name,Domain]
 combine :: Valuation -> [(Name,Domain)] -> [Valuation]
 combine v [] = [v]
 combine v ((n,d):xs)
@@ -96,9 +101,11 @@ pytriples n = validateTriples (computeTriples n)
 		validateTriples :: [Valuation] -> [Valuation]
 		validateTriples xs = [x | x <- xs, isCorrect x, isPytriple x]
 
+-- compute all combinations of a=.. b=.. c==.. with a,b,c <= n
 computeTriples :: Integer -> [Valuation]
 computeTriples n = valuations [("a",[1..n]), ("b",[1..n]), ("c",[1..n])]
 
+-- is a valid pytriple?
 isCorrect :: Valuation -> Bool
 isCorrect val = snd (head val) <= snd (head (tail val))
 
@@ -108,6 +115,7 @@ isPytriple val = evalExpr e1 val == evalExpr e2 val
 			e2 = (Var "c" :*: Var "c")}
 
 ------- Exercise 5:	-----------------------------
+
 toExpr :: String -> Expr
 toExpr s = fst (parser s)
 

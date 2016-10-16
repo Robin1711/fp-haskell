@@ -9,6 +9,7 @@ merge (x:xs) (y:ys) zs
 	| y < x && not(elem y zs) = y : merge (x:xs) ys ([y]++zs)
 	| otherwise = merge xs ys zs
 
+-- Create the infinite list of the fibonnaci sequence
 fibonacci :: [Integer]
 fibonacci = 0 : calc [0,1]
 	where
@@ -16,6 +17,7 @@ fibonacci = 0 : calc [0,1]
 		calc (x:xs) = lst : calc [lst, (x + lst)]
 			where lst = last xs
 
+-- Create the infinite list of the catalan sequence where next is the calculation of the next number
 catalan :: [Integer]
 catalan = calc 0
 	where

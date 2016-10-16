@@ -11,6 +11,7 @@ composites = comp [4..] composition
 		comp :: [Integer] -> (Integer -> [Integer]) -> [(Integer,[Integer])]
 		comp (x:xs) f = (x,f x) : comp [x | x <- xs, not(isPrime x)] f
 
+-- Calculate the prima factorization of the given integer
 composition :: Integer -> [Integer]
 composition n
 	| n == 1 = []
