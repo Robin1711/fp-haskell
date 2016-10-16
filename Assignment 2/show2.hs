@@ -111,54 +111,6 @@ isPytriple val = evalExpr e1 val == evalExpr e2 val
 --toExpr :: String -> Expr
 --toExpr s = parse (tokenize s)
 
-{-
-
---parseE :: [String] -> Expr
---parseE (x:xs)
---	| o == "+" = parseT x :+: parseEp
---	| o == "-" = parseT x :-: parseEp
---	| o == "*" = parseT x :*: parseEp
---	| o == "/" = parseT x :/: parseEp
---	| o == "%" = parseT x :%: parseEp
---	where o = (head xs)
-
-parser
-
-parseE :: [String] -> Expr
-parseE (x:xs) = parseT parseEp
-
-parseEp :: [String] -> Expr
-parseEp (x:xs)
-	| x == "+" = :+: parseT parseEp
-	| x == "-" = :-: parseT parseEp
-	| otherwise = 
-
-parseT :: [String] -> Expr
-parseT (x:xs) = parseF parseTp
-
-parseTp :: [String] -> Expr
-parseTp (x:xs)
-	| x == "*" = :*: parseT parseEp
-	| x == "/" = :/: parseT parseEp
-	| x == "%" = :%: parseT parseEp
-	| otherwise = 
-
-parseF :: [String] -> Expr
-parseF (x:xs)
-	| xs == [] && (all isNumber x) = Var (head s) -- <variable>
-	| xs == [] && (all isVariable x) = Val (toNumber (head s)) -- <integer> 
-	| otherwise = parseE (x:xs)
-
-{-
-
-E 	->	T E’
-E’ 	-> 	+ T E’ | - T E' | <empty string>
-T 	->	F T’
-T’ 	-> 	* F T’ | / F T’ | % F T’ | <empty string>
-F 	-> 	(E) | <integer> | <variable>
-
--}
-
 --    toExpr "2*a+b" ----> ((2*a)+b)  
 --(2 * a) + b
 --takWhile notOperator 
@@ -168,8 +120,6 @@ F 	-> 	(E) | <integer> | <variable>
 --head (tail (dropWhile f s)) == a
 --tail (tail (dropWhile f s)) == "+", "b"
 
-
--}
 {-
 parse :: [String] -> Expr
 parse s
@@ -224,10 +174,16 @@ toExpr s = fst (parser s)
 parser :: String -> (Expr,[String])
 parser str = parseE (Var "a") (tokenize str)
 
+{-
+parser :: String -> (Expr,[String])
+parser str = parseE e s
+	where (e,s) = parseF (tokenize (tail str))
+-}
+
 parseE:: Expr -> [String] -> (Expr,[String])
 parseE accepted tokens = parseE' acc rest
 	where (acc,rest) = parseT accepted tokens
-	
+
 parseE' :: Expr -> [String] -> (Expr,[String])
 parseE' accepted ("+":tokens) = parseE' acc rest
 	where (acc,rest) = parseT (accepted :+: expr) leftover
@@ -240,7 +196,7 @@ parseE' accepted tokens = (accepted, tokens)
 parseT:: Expr -> [String] -> (Expr,[String])
 parseT accepted tokens = parseT' acc rest
 	where (acc,rest) = parseF tokens
-	
+
 parseT' :: Expr -> [String] -> (Expr,[String])
 parseT' accepted ("*":tokens) = parseT' acc rest
 	where (acc,rest) = parseT (accepted :*: expr) leftover
@@ -256,8 +212,8 @@ parseT' accepted tokens = (accepted, tokens)
 parseF :: [String] -> (Expr,[String])
 parseF [] = error "Parse error ... abort"
 parseF (tok:tokens)
-	|isAlpha (head tok) = (Var tok, tokens)
-	|isDigit (head tok) = (Val (toNumber tok), tokens)
+	| isAlpha (head tok) = (Var tok, tokens)
+	| isDigit (head tok) = (Val (toNumber tok), tokens)
 	| otherwise = (fst(parser tok), tokens)
 
 toNumber :: String -> Integer
