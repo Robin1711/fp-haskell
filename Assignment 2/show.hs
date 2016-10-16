@@ -74,6 +74,7 @@ getVal s (x:xs)
 	| otherwise = getVal s xs
 
 ----------	valuations	-------------------------
+
 valuations :: [(Name,Domain)] -> [Valuation]
 valuations ((n,d):xs)
 	| d == [] = []
@@ -83,59 +84,26 @@ combine :: Valuation -> [(Name,Domain)] -> [Valuation]
 combine v [] = [v]
 combine v ((n,d):xs)
 	| xs == [] && d == [] = []
-	| otherwise = [v ++ [(n, head d)]] ++ combine v ([(n, tail d)] ++ xs)
-
---valuations :: [(Name,Domain)] -> [Valuation]
---valuations (xs:xss) 
---	| xss == [] = xs [(),(),()]
---	| valuations xss
---	| [x ++ (valuations xss) | x:xs]
---x = (Name,Domain)
-
-	--xs = [("a",1), ("a",2)]
-	--yss = [[("b",2), ("b",3)], [("c",1), ("c",2)]]
-
-f :: Valuation -> [Valuation] -> [Valuation]
-f (x:xs) (ys:yss) = [[x]] ++ (g [ys | ys <- yss]) ++ f xs (ys:yss)
-f [] _ = []
-f (x:xs) [] = [[x]]
-
-g :: [Valuation] -> [Valuation]
-g (ys:yss) = f ys yss
-g _ = [[]]
+	| otherwise = [v ++ x | x <- valuations ((n,d):xs)]
 
 ----------	pytriples	-------------------------
-{-
+
 pytriples :: Integer -> [Valuation]
 pytriples n = validateTriples (computeTriples n)
 	where
 		validateTriples :: [Valuation] -> [Valuation]
-		validateTriples (pt:xs)= pt : validateTriples [x | x <- xs, isPytriple x]
--}
+		validateTriples xs = [x | x <- xs, isCorrect x, isPytriple x]
 
 computeTriples :: Integer -> [Valuation]
-computeTriples n = filter isCorrect (valuations [("a",[1..n]), ("b",[1..n]), ("c",[1..n])])
+computeTriples n = valuations [("a",[1..n]), ("b",[1..n]), ("c",[1..n])]
 
 isCorrect :: Valuation -> Bool
-isCorrect val = snd (head val) < snd (head (tail val))
+isCorrect val = snd (head val) <= snd (head (tail val))
 
-{-
 isPytriple :: Valuation -> Bool
-isPytriple (v:vs)
-
-pytriples :: Integer -> [Valuation]
-pytriples n
-	| func ((Var "a" :*: Var "a") :+: (Var "b" :*: Var "b")) (Var "c" :*: Var "c") (correct (valuations [("a",[1..n]),("b",[1..n])])) (valuations[("c",[1..n])])
-
-func :: Expr -> Expr -> [Valuation] -> [Valuations]
-func e1 e2 xs
-  (
--}
-
-correct :: [Valuation] -> [Valuation]
-correct (x:xs)
-	| snd (head x) <= snd (head(tail x)) = [x] ++ correct xs
-	| otherwise = correct xs
+isPytriple val = evalExpr e1 val == evalExpr e2 val
+	where { e1 = (Var "a" :*: Var "a") :+: (Var "b" :*: Var "b");
+			e2 = (Var "c" :*: Var "c")}
 
 ------- Exercise 5:	-----------------------------
 toExpr :: String -> Expr
